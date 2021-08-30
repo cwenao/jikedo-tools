@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "https://maven.aliyun.com/nexus/content/repositories/snapshots" }
+    }
+    ext {
+        springbootVersion = '2.2.5.RELEASE'
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springbootVersion}")
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.2.0'
+    }
+}
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+group 'com.cwenao'
+version '1.0-SNAPSHOT'
+
+configure(allprojects){ project ->
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java'
+    apply plugin: 'idea'
+
+    dependencyManagement {
+        resolutionStrategy {
+            cacheChangingModulesFor 0, 'seconds'
+        }
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springbootVersion}"
+            mavenBom "org.springframework.boot:spring-boot-starter:${springbootVersion}"
+        }
+        dependencies {
+            dependency group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+            dependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+            dependency group: 'cn.hutool', name: 'hutool-core', version: '5.5.0'
+        }
+    }
+}
+
+configure(subprojects){ project->
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java'
+
+    dependencies {
+        compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+        compile group: 'org.projectlombok', name: 'lombok'
+        compile group: 'org.apache.commons', name: 'commons-lang3'
+        compile group: 'cn.hutool', name: 'hutool-core'
+
+        testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+        runtimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    }
+}
+
+
+test {
+    useJUnitPlatform()
+}

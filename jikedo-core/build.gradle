@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management'
+}
+
+group 'com.cwenao'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    compile group: 'org.springframework.boot',name: 'spring-boot-starter-integration'
+    compile group: 'org.springframework.integration',name: 'spring-integration-redis'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
