@@ -38,6 +38,8 @@ configure(allprojects){ project ->
             dependency group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
             dependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
             dependency group: 'cn.hutool', name: 'hutool-core', version: '5.5.0'
+            dependency group: 'com.alibaba', name: 'fastjson', version: '1.2.60'
+
         }
     }
 }
@@ -51,6 +53,7 @@ configure(subprojects){ project->
         compile group: 'org.projectlombok', name: 'lombok'
         compile group: 'org.apache.commons', name: 'commons-lang3'
         compile group: 'cn.hutool', name: 'hutool-core'
+        compile group: 'com.alibaba', name: 'fastjson'
 
         testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.0'
         runtimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

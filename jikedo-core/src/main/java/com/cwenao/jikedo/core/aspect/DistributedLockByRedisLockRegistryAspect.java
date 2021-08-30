@@ -42,7 +42,7 @@ import org.springframework.web.servlet.HandlerMapping;
 @Aspect
 @Component
 @Order(9999)
-public abstract class RedisDistributedLockAspect {
+public abstract class DistributedLockByRedisLockRegistryAspect {
 
     @Autowired
     private RedisLockRegistry distributedRedisLockRegistry;
