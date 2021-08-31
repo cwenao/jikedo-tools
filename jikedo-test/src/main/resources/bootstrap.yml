@@ -1,0 +1,10 @@
+server:
+  port: 11345
+
+spring:
+  application:
+    name: jikedo-start
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: dev #默认为开发环境

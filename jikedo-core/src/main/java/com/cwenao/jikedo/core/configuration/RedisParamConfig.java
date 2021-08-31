@@ -62,9 +62,4 @@ public class RedisParamConfig {
      * 默认60秒
      */
     private Long distributedLockTimeOut = 60L;
-
-    public static void main(String[] args) {
-        Integer test = Integer.getInteger("1");
-        System.out.println(test==1);
-    }
 }

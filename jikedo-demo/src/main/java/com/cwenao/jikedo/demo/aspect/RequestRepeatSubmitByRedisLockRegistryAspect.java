@@ -2,25 +2,22 @@
  * Company
  * Copyright (C) 2014-2021 All Rights Reserved.
  */
-package com.cwenao.jikedo.core.aspect;
+package com.cwenao.jikedo.demo.aspect;
 
-import cn.hutool.core.util.HashUtil;
 import com.alibaba.fastjson.JSON;
 import com.cwenao.jikedo.core.annotation.RequestRepeatSubmitByRedisLockRegistry;
+import com.cwenao.jikedo.core.aspect.BaseRedisLockAspect;
 import com.cwenao.jikedo.core.configuration.RedisParamConfig;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Enumeration;
+import com.cwenao.jikedo.core.utils.ObtainAnnotationForJoinPoint;
+import com.cwenao.jikedo.core.utils.ObtainParameterByRequestUtils;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.annotation.Order;
@@ -43,7 +40,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 @EnableConfigurationProperties(RedisParamConfig.class)
 @Order(99999)
-public abstract class RequestRepeatSubmitByRedisLockRegistryAspect {
+public class RequestRepeatSubmitByRedisLockRegistryAspect implements BaseRedisLockAspect {
 
     @Autowired
     private RedisParamConfig redisParamConfig;
@@ -69,7 +66,8 @@ public abstract class RequestRepeatSubmitByRedisLockRegistryAspect {
     @Around("repeatCheck()")
     public Object repeatSubmitCheck(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        RequestRepeatSubmitByRedisLockRegistry requestRepeatSubmitByRedisLockRegistry = getRepeatSubmitCheckAnnotation(joinPoint);
+        RequestRepeatSubmitByRedisLockRegistry requestRepeatSubmitByRedisLockRegistry =
+                ObtainAnnotationForJoinPoint.getAnnotation(joinPoint,RequestRepeatSubmitByRedisLockRegistry.class);
 
         if (requestRepeatSubmitByRedisLockRegistry != null && requestRepeatSubmitByRedisLockRegistry.enable()) {
 
@@ -103,7 +101,7 @@ public abstract class RequestRepeatSubmitByRedisLockRegistryAspect {
                 } catch (Exception e) {
                     log.error("获取body args参数错误: " + e.getMessage());
                 }
-                Long requestPathHash = requestPathHash(request,bodyArgs);
+                Long requestPathHash = ObtainParameterByRequestUtils.requestPathHash(request,bodyArgs);
 
                 if (requestPathHash == null || !enableHash) {
                     throw new Exception("重复校验单据号，repeatTicket不能为null,请刷新页面后再试！");
@@ -130,58 +128,6 @@ public abstract class RequestRepeatSubmitByRedisLockRegistryAspect {
         }
 
         return joinPoint.proceed();
-    }
-
-    /**
-     * 普通的redis检测
-     * @param joinPoint
-     * @param keyCode
-     * @param submitTicket
-     * @return
-     * @throws Throwable
-     */
-    private Object repeatCheckByRedis(ProceedingJoinPoint joinPoint,String keyCode,String submitTicket) throws Throwable{
-
-        //设置过期时间
-        redisTemplate.expire(keyCode, redisParamConfig.getTicketTimeOut(), TimeUnit.SECONDS);
-
-        try {
-            return joinPoint.proceed();
-        } catch (Throwable error) {
-            redisTemplate.delete(keyCode);
-            throw error;
-        }
-    }
-
-    /**
-     * 对request参数信息进行hash
-     * @param request
-     * @param bodyArgs
-     * @return
-     * @throws IOException
-     */
-    private Long requestPathHash(HttpServletRequest request,String bodyArgs) throws IOException {
-
-        StringBuffer sb = new StringBuffer();
-        sb.append(request.getRequestURI()).append("?");
-        Enumeration<?> temp = request.getParameterNames();
-        while (temp.hasMoreElements()) {
-            String paramName = (String) temp.nextElement();
-            sb.append(paramName).append("=").append(request.getParameter(paramName)).append("&");
-        }
-        Enumeration<?> temp1 = request.getHeaderNames();
-        while (temp1.hasMoreElements()) {
-            String key = (String) temp1.nextElement();
-            sb.append(key).append("=").append(request.getParameter(key)).append("&");
-        }
-        if (!StringUtils.isEmpty(bodyArgs)) {
-            sb.append("bodyargs").append("=").append(bodyArgs);
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("requestPathHash参数：{}", sb.toString());
-        }
-        return HashUtil.mixHash(sb.toString());
     }
 
     private Object repeatCheckByRedisLockRegistry(ProceedingJoinPoint joinPoint,String keyCode,String submitTicket,
@@ -228,17 +174,6 @@ public abstract class RequestRepeatSubmitByRedisLockRegistryAspect {
      * 业务逻辑处理
      * @param result
      */
-    protected abstract void bizResultProcessor(Object result);
-
-    private RequestRepeatSubmitByRedisLockRegistry getRepeatSubmitCheckAnnotation(JoinPoint joinPoint) {
-
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-        Method method = methodSignature.getMethod();
-
-        if (method == null) {
-            return null;
-        }
-
-        return method.getAnnotation(RequestRepeatSubmitByRedisLockRegistry.class);
-    }
+    @Override
+    public void bizResultProcessor(Object result){};
 }

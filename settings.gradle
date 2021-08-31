@@ -2,4 +2,6 @@ rootProject.name = 'jikedo-tools'
 include 'jikedo-biz-logs'
 include 'jikedo-core'
 include 'jikedo-data-permissions'
+include 'jikedo-test'
+include 'jikedo-demo'
 

@@ -1,0 +1,49 @@
+server:
+  port: 11345
+
+spring:
+  application:
+    name: jikedo-start
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: dev #默认为开发环境
+  redis:
+    host: 192.168.18.94
+    port: 6000
+    password: cwenao5690xxoolsdb2!kk@/ls#$
+  jackson:
+    time-zone: GMT+8
+    #default-property-inclusion: non_null
+
+## 分页插件参数
+pagehelper:
+  # 默认值为 false，当该参数设置为 true 时，如果 pageSize=0 或者 RowBounds.limit = 0 就会查询出全部的结果（相当于没有执行分页查询，但是返回结果仍然是 Page 类型）
+  page-size-zero: true
+  # 分页合理化参数，默认值为false。当该参数设置为 true 时，pageNum<=0 时会查询第一页， pageNum>pages（超过总数时），会查询最后一页。默认false 时，直接根据参数进行查询
+  reasonable: true
+
+
+## 雪花算法
+snow-flake:
+  datacenter-id: 0 # 数据中心标识
+  worker-id: 0 # 机器标识
+
+
+### 配置actuator endpoint
+management:
+  #  endpoints:
+  #    web:
+  #      exposure:
+  #        # 这里用* 代表暴露所有端点只是为了观察效果，实际中按照需进行端点暴露
+  #        include: "*"
+  endpoint:
+    health:
+      # 详细信息显示给所有用户。
+      show-details: always
+      sensitive: false
+  health:
+    status:
+      http-mapping:
+        # 自定义健康检查返回状态码对应的http状态码
+        FATAL:  503

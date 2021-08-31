@@ -19,7 +19,7 @@ import org.springframework.integration.redis.util.RedisLockRegistry;
  */
 @Configuration
 @EnableConfigurationProperties(RedisParamConfig.class)
-public abstract class RedisLockRegistryConfiguration {
+public class RedisLockRegistryConfiguration {
 
     @Autowired
     private RedisParamConfig redisParamConfig;
